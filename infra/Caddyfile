@@ -1,0 +1,40 @@
+# ----------------------------------------------------------------------------------------
+# Caddy configuration for local development
+#
+# Fronts the SPA (Vite :3000) and the worker (wrangler :8787) behind a single
+# HTTPS origin so better-auth sees one consistent origin in dev — both from
+# the host machine and from other devices on the LAN.
+#
+# Requires a one-time setup to trust the local Caddy instance as a certificate
+# authority. While Caddy is running, run this command:
+# ┌───────────────┐
+# │ > caddy trust │
+# └───────────────┘
+# ----------------------------------------------------------------------------------------
+# ■ Tools
+# - Official VSC extension for Caddy: https://github.com/caddyserver/vscode-caddyfile
+# ----------------------------------------------------------------------------------------
+{
+	default_bind 0.0.0.0
+}
+
+kit.local, kit.localhost {
+	# Worker routes — /api/* and /ws — go to wrangler.
+	# /ws needs the WebSocket upgrade headers forwarded explicitly.
+	@ws path /ws
+	reverse_proxy @ws localhost:8787 {
+		header_up Host {host}
+		header_up Connection {>Connection}
+		header_up Upgrade {>Upgrade}
+	}
+
+	@api path /api /api/*
+	reverse_proxy @api localhost:8787 {
+		header_up Host {host}
+	}
+
+	# Everything else is the SPA. Vite's HMR runs over WebSocket too, but
+	# Caddy's reverse_proxy upgrades it automatically when no matcher overrides
+	# the headers.
+	reverse_proxy localhost:3000
+}
