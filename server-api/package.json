@@ -1,0 +1,23 @@
+{
+  "name": "@kit/server-api",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#common/*": "@kit/common/*",
+    "#database/*": "@kit/database/*"
+  },
+  "scripts": {
+    "dev": "vp dev"
+  },
+  "dependencies": {
+    "@hono/valibot-validator": "^0.6.1",
+    "@kit/common": "workspace:*",
+    "@kit/database": "workspace:*",
+    "better-auth": "^1.6.23",
+    "hono": "^4.12.27",
+    "valibot": "^1.4.2"
+  },
+  "devDependencies": {
+    "@hono/vite-dev-server": "^0.26.0"
+  }
+}

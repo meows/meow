@@ -1,0 +1,32 @@
+{
+  "name": "@kit/database",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#database/*": "./src/*",
+    "#common/*": "@kit/common/*"
+  },
+  "exports": {
+    "./*": "./src/*"
+  },
+  "scripts": {
+    "db:up": "docker compose -f ../docker-compose.yaml up -d --wait",
+    "db:down": "docker compose -f ../docker-compose.yaml down -v",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:reset": "bun run src/script/reset.ts",
+    "db:seed": "bun run src/script/seed.ts",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@kit/common": "workspace:*",
+    "drizzle-orm": "^0.45.2",
+    "postgres": "^3.4.9",
+    "valibot": "^1.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "drizzle-kit": "^0.31.10",
+    "vitest": "^4.1.9"
+  }
+}

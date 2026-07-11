@@ -1,0 +1,17 @@
+{
+  "name": "@kit/common",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#common/*": "./src/*"
+  },
+  "exports": {
+    "./*": "./src/*"
+  },
+  "dependencies": {
+    "valibot": "^1.4.2"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.9"
+  }
+}

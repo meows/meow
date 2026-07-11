@@ -1,0 +1,23 @@
+{
+  "name": "meow",
+  "private": true,
+  "workspaces": [
+    "common",
+    "database",
+    "server-api",
+    "web-app"
+  ],
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^24.13.2",
+    "typescript": "^5.9.3",
+    "vite-plus": "^0.2.2"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "bun",
+      "version": "^1.3.14",
+      "onFail": "download"
+    }
+  }
+}
