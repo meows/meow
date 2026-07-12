@@ -1,7 +1,7 @@
 # Technology
 
-- Drizzle ORM + PostgreSQL (postgres.js driver), dialect `postgresql`. Default casing (no `casing` option) — give columns explicit snake_case names in schema definitions, as the generated auth schema does.
-- Consumed as TypeScript source by the apps (`#database/*` subpath imports through the `@kit/database` exports map) — no build step.
+- Drizzle ORM + PostgreSQL (postgres.js driver), dialect `postgresql`.
+- Consumed as TypeScript source by the apps (`#database/*` subpath imports through the `@meow/database` exports map) — no build step.
 - `src/client.ts` is a pure factory: `createDb(url)` → `{ driver, db }`. No env access, no top-level connection (postgres.js connects lazily). Keep it that way — the better-auth CLI imports this module without a live database.
 
 # Env

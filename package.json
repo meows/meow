@@ -8,6 +8,20 @@
     "web-app"
   ],
   "type": "module",
+  "scripts": {
+    "dev": "vp run -r --parallel dev",
+    "db:up": "vp run --filter @meow/database db:up",
+    "db:down": "vp run --filter @meow/database db:down",
+    "db:push": "vp run --filter @meow/database db:push",
+    "db:generate": "vp run --filter @meow/database db:generate",
+    "db:migrate": "vp run --filter @meow/database db:migrate",
+    "db:reset": "vp run --filter @meow/database db:reset",
+    "db:seed": "vp run --filter @meow/database db:seed",
+    "db:studio": "vp run --filter @meow/database db:studio",
+    "gateway:up": "sudo caddy start --config infra/Caddyfile",
+    "gateway:down": "caddy stop",
+    "gateway:reload": "caddy reload --config infra/Caddyfile"
+  },
   "devDependencies": {
     "@types/node": "^24.13.2",
     "typescript": "^5.9.3",

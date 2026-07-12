@@ -1,9 +1,9 @@
 {
-  "name": "@kit/web-app",
+  "name": "@meow/web-app",
   "private": true,
   "type": "module",
   "imports": {
-    "#common/*": "@kit/common/*"
+    "#common/*": "@meow/common/*"
   },
   "scripts": {
     "dev": "vp dev"
@@ -11,7 +11,7 @@
   "dependencies": {
     "@base-ui/react": "^1.6.0",
     "@fontsource-variable/inter": "^5.2.8",
-    "@kit/common": "workspace:*",
+    "@meow/common": "workspace:*",
     "@tanstack/react-router": "^1.170.17",
     "better-auth": "^1.6.23",
     "class-variance-authority": "^0.7.1",

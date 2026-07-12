@@ -1,21 +1,19 @@
-import { sql } from "drizzle-orm"
-import { migrate } from "drizzle-orm/postgres-js/migrator"
+import { reset } from "drizzle-seed"
 
-import { createDb } from "#database/client.ts"
+import { Database } from "#database/client.ts"
+import * as schema from "#database/schema/index.ts"
+import { check } from "@meow/common/lib/console.ts"
 
-const url = process.env.DATABASE_URL
-if (!url) throw new Error("DATABASE_URL is not set — see database/.env.example")
+// ———————————————————————————————————————————————————————————————————————————————————————
+// Reset
 
-const { db, driver } = createDb(url, { max: 1, onnotice: () => {} })
+const psql = new Database("reset", { max: 1 })
 
-// Drop everything: application tables (public) AND drizzle's migration
-// journal (the drizzle schema) — leaving the journal behind would make
-// migrate() a no-op and the tables would never come back.
-await db.execute(sql`drop schema if exists public cascade`)
-await db.execute(sql`create schema public`)
-await db.execute(sql`drop schema if exists drizzle cascade`)
+try {
+  await reset(psql.db, { schema })
+  console.log(`${check} Database reset.`)
+} 
 
-await migrate(db, { migrationsFolder: "./migrations" })
-await driver.end()
-
-console.log("db:reset — schema dropped, migrations re-applied")
+finally {
+  await psql.end()
+}

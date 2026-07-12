@@ -3,11 +3,11 @@ import { describe, expect, it } from "vitest"
 import { SLUG_MAX } from "#common/constant/limits.ts"
 import { createDb } from "#database/client.ts"
 
-// Gate test for the scaffold: #common/* → @kit/common/* → ./src/* must resolve
+// Gate test for the scaffold: #common/* → @meow/common/* → ./src/* must resolve
 // from a sibling package under rolldown-vite, and createDb must stay lazy
 // (constructing a client without a reachable database must not throw).
 describe("cross-package resolution", () => {
-  it("resolves #common through the @kit/common exports chain", () => {
+  it("resolves #common through the @meow/common exports chain", () => {
     expect(SLUG_MAX).toBe(48)
   })
 

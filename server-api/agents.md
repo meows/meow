@@ -1,7 +1,7 @@
 # Technology
 
 - Hono app, fetch-based: `src/index.ts` does `export default app`. Dev runs under `vp dev` via `@hono/vite-dev-server` (port 3000); production can run the same entry with `bun run src/index.ts`.
-- Drizzle ORM against PostgreSQL via `@kit/database` (`createDb` factory; this app owns the singleton in `src/db.ts`).
+- Drizzle ORM against PostgreSQL via `@meow/database` (`createDb` factory; this app owns the singleton in `src/db.ts`).
 - better-auth mounted at `/api/auth/*` in `src/app.ts`; config in `src/auth.ts`.
 - Valibot everywhere: request validation with `@hono/valibot-validator`, env validation in `src/env.ts` (parses `process.env` at startup — reads `.env`, surfaced by `vite.config.ts` through `loadEnv`).
 

@@ -1,9 +1,13 @@
 # ----------------------------------------------------------------------------------------
 # Caddy configuration for local development
 #
-# Fronts the SPA (Vite :3000) and the worker (wrangler :8787) behind a single
-# HTTPS origin so better-auth sees one consistent origin in dev — both from
-# the host machine and from other devices on the LAN.
+# Fronts the SPA (web-app, Vite :5173) and the API (server-api, Hono :3000)
+# behind a single HTTPS origin so better-auth sees one consistent origin in
+# dev — both from the host machine and from other devices on the LAN.
+#
+# This is optional: `bun run dev` already gives same-origin routing over plain
+# HTTP via Vite's own `/api` proxy. Reach for Caddy when you want real HTTPS
+# locally or a stable hostname for testing on another device.
 #
 # Requires a one-time setup to trust the local Caddy instance as a certificate
 # authority. While Caddy is running, run this command:
@@ -18,23 +22,17 @@
 	default_bind 0.0.0.0
 }
 
-kit.local, kit.localhost {
-	# Worker routes — /api/* and /ws — go to wrangler.
-	# /ws needs the WebSocket upgrade headers forwarded explicitly.
-	@ws path /ws
-	reverse_proxy @ws localhost:8787 {
-		header_up Host {host}
-		header_up Connection {>Connection}
-		header_up Upgrade {>Upgrade}
-	}
-
+# Hostnames are suggestions — `.localhost` resolves to loopback automatically;
+# `.local` (mDNS) lets other devices on the LAN reach this machine.
+meow.local, meow.localhost {
+	# API and auth go straight to the Hono server, bypassing Vite's proxy.
 	@api path /api /api/*
-	reverse_proxy @api localhost:8787 {
+	reverse_proxy @api localhost:3000 {
 		header_up Host {host}
 	}
 
-	# Everything else is the SPA. Vite's HMR runs over WebSocket too, but
-	# Caddy's reverse_proxy upgrades it automatically when no matcher overrides
-	# the headers.
-	reverse_proxy localhost:3000
+	# Everything else is the SPA. Vite's HMR runs over WebSocket; Caddy's
+	# reverse_proxy upgrades it automatically when no matcher overrides the
+	# headers.
+	reverse_proxy localhost:5173
 }

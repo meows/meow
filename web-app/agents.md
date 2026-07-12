@@ -14,7 +14,7 @@
 
 - `~/…` → this app's `src/` (tsconfig `paths` + Vite alias).
 - `@/…` → `src/component/` (shadcn convention; `@/ui/button` = `src/component/ui/button.tsx`).
-- `#common/…` → `@kit/common` source (Node subpath imports; same spelling repo-wide).
+- `#common/…` → `@meow/common` source (Node subpath imports; same spelling repo-wide).
 
 # Constraint
 

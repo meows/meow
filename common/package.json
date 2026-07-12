@@ -1,5 +1,5 @@
 {
-  "name": "@kit/common",
+  "name": "@meow/common",
   "private": true,
   "type": "module",
   "imports": {

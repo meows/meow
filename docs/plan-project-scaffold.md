@@ -30,7 +30,7 @@ Note: there is no `vp new` — scaffolding is **`vp create`** (templates: `vite:
 
 1. **All-in on Vite+** — `vp` owns dev / build / test / lint / format / typecheck / task running / packing.
 2. **Oxlint + Oxfmt** for lint/format. Drop Biome (`biome.json` references in `web-app/agents.md` should be removed).
-3. **`common` is one workspace package `@kit/common`** with `lib/`, `constant/`, `validation/` folders under `src/` and a wildcard exports map — no build step; consumers import TypeScript source directly.
+3. **`common` is one workspace package `@meow/common`** with `lib/`, `constant/`, `validation/` folders under `src/` and a wildcard exports map — no build step; consumers import TypeScript source directly.
 4. **pnpm workspaces**, hand-rolled scaffold (not `vp create vite:monorepo` — its `apps/`+`packages/` output would need renaming to fit our flat layout; optionally run it in a throwaway dir to crib the generated `vite.config.ts` shape).
 
 ## Architecture
@@ -52,13 +52,13 @@ Vite+ uses the root config for shared lint/format settings and workspace task de
 
 ### TypeScript — base config, source imports, no project references
 
-- Root `tsconfig.base.json`: `strict`, `moduleResolution: "bundler"`, `noEmit`, and **`allowImportingTsExtensions: true`**. The last one is load-bearing: imports like `@kit/common/constant/specific-file.ts` end in `.ts`, which TypeScript rejects (TS5097) without it. It requires `noEmit` — fine, Vite/tsdown do all emitting.
+- Root `tsconfig.base.json`: `strict`, `moduleResolution: "bundler"`, `noEmit`, and **`allowImportingTsExtensions: true`**. The last one is load-bearing: imports like `@meow/common/constant/specific-file.ts` end in `.ts`, which TypeScript rejects (TS5097) without it. It requires `noEmit` — fine, Vite/tsdown do all emitting.
 - Each package's `tsconfig.json` extends the base. **No project references** — internal packages are consumed as source, there are no declaration builds, so `tsc -b` ceremony buys nothing.
-- `@kit/common/package.json` exports map:
+- `@meow/common/package.json` exports map:
   ```json
-  { "name": "@kit/common", "exports": { "./*": "./src/*" } }
+  { "name": "@meow/common", "exports": { "./*": "./src/*" } }
   ```
-  so `@kit/common/constant/specific-file.ts` → `common/src/constant/specific-file.ts`. Same pattern for `@kit/database`.
+  so `@meow/common/constant/specific-file.ts` → `common/src/constant/specific-file.ts`. Same pattern for `@meow/database`.
 
 ### Aliases — hybrid: `~` within an app, `#` between packages, `@` for components
 
@@ -67,7 +67,7 @@ Vite+ uses the root config for shared lint/format settings and workspace task de
 | `~/…`      | this app's `src/`                                       | web-app, server-api only — never in libraries |
 | `#<pkg>/…` | that package (identical spelling inside and outside it) | everywhere                                    |
 | `@/…`      | web-app `src/component/`                                | web-app only                                  |
-| `@kit/*`   | underlying exports plumbing                             | package.json maps; rarely in code             |
+| `@meow/*`   | underlying exports plumbing                             | package.json maps; rarely in code             |
 
 **`~` — app-internal.** `"~/*": ["./src/*"]` in tsconfig `paths` + a plain string `resolve.alias` in each app's `vite.config.ts`. A global string alias is safe here _only because_ libraries never use `~`: `common`/`database` are bundled as source by the apps, so a library-internal `~` would be captured by the consuming app's alias and resolve into the wrong `src/`. The scheme is self-enforcing as long as that rule holds.
 
@@ -76,13 +76,13 @@ Vite+ uses the root config for shared lint/format settings and workspace task de
 ```jsonc
 // server-api/package.json (web-app declares the same two)
 { "imports": {
-    "#common/*":   "@kit/common/*",     // chains through common's exports → ./src/*
-    "#database/*": "@kit/database/*"
+    "#common/*":   "@meow/common/*",     // chains through common's exports → ./src/*
+    "#database/*": "@meow/database/*"
 } }
 // common/package.json — self-map, used for its own internal imports
 { "imports": { "#common/*": "./src/*" } }
 // database/package.json
-{ "imports": { "#database/*": "./src/*", "#common/*": "@kit/common/*" } }
+{ "imports": { "#database/*": "./src/*", "#common/*": "@meow/common/*" } }
 ```
 
 ```ts
@@ -101,11 +101,11 @@ The elegant property: `#common/validation/user.ts` means the same thing from any
 
 **Notes:**
 
-- `@kit/*` `exports` maps (`"./*": "./src/*"`) remain the plumbing that `#` targets chain through, and satisfy the original `@kit/common/constant/specific-file.ts` importability requirement — day-to-day code just spells it `#common/constant/specific-file.ts`.
+- `@meow/*` `exports` maps (`"./*": "./src/*"`) remain the plumbing that `#` targets chain through, and satisfy the original `@meow/common/constant/specific-file.ts` importability requirement — day-to-day code just spells it `#common/constant/specific-file.ts`.
 - Each consumer maintains a small `imports` map for the siblings it uses; drift is loud (unmapped `#database/...` fails to resolve immediately).
-- The `#common/* → @kit/common/* → ./src/*` double-wildcard chain is spec-legal; **smoke-test it under rolldown-vite on scaffold day** before building on it.
+- The `#common/* → @meow/common/* → ./src/*` double-wildcard chain is spec-legal; **smoke-test it under rolldown-vite on scaffold day** before building on it.
 - Accepted asymmetry: "my own file" is `~/x` in an app but `#common/x` in a library — the price of no resolver plugin.
-- `#`, `~`, `@/`, and `@kit/*` can't collide (`#` is invalid in package names; `~`/`@/` aren't valid package-name prefixes).
+- `#`, `~`, `@/`, and `@meow/*` can't collide (`#` is invalid in package names; `~`/`@/` aren't valid package-name prefixes).
 - Skip `vite-tsconfig-paths` — nothing needs it.
 
 ### server-api dev workflow
@@ -122,16 +122,16 @@ The elegant property: `#common/validation/user.ts` means the same thing from any
   ```sh
   pnpm dlx @better-auth/cli generate --config ../server-api/src/auth.ts --output ../database/src/schema/auth.ts
   ```
-  Mild circularity (auth config imports `@kit/database`, generator writes into it) is benign because generation is a manual, occasional step — but record this regen command wherever auth plugins change.
+  Mild circularity (auth config imports `@meow/database`, generator writes into it) is benign because generation is a manual, occasional step — but record this regen command wherever auth plugins change.
 
-### @kit/database
+### @meow/database
 
-- Exports the Drizzle schema barrel (`src/schema/index.ts` re-exporting `auth.ts` + `app.ts`) and a `createDb(env)` client factory; consumed as source like `@kit/common`.
+- Exports the Drizzle schema barrel (`src/schema/index.ts` re-exporting `auth.ts` + `app.ts`) and a `createDb(env)` client factory; consumed as source like `@meow/common`.
 - `drizzle.config.ts`, `migrations/`, and the `drizzle-kit` devDependency all live in `database/` only.
 
 ### Valibot
 
-- Shared schemas in `common/src/validation/`; Valibot is a dependency of `@kit/common` (declare it too in any app importing it directly).
+- Shared schemas in `common/src/validation/`; Valibot is a dependency of `@meow/common` (declare it too in any app importing it directly).
 - Hono routes validate with `@hono/valibot-validator`.
 - Both apps validate env with Valibot: web-app against `import.meta.env` in `src/env.ts`, server-api against `process.env`.
 - Don't wrap better-auth's own I/O in Valibot — it validates internally.
@@ -171,12 +171,12 @@ The elegant property: `#common/validation/user.ts` means the same thing from any
 ├── .gitignore
 ├── docs/
 │   └── plan-project-scaffold.md
-├── common/                       # @kit/common — exports "./*": "./src/*"
+├── common/                       # @meow/common — exports "./*": "./src/*"
 │   ├── package.json              # imports: "#common/*" → ./src/* (self-map; internal imports use #common, never ~)
 │   ├── tsconfig.json
 │   └── src/{lib,constant,validation}/
-├── database/                     # @kit/database — scripts: db:generate / db:migrate / db:studio
-│   ├── package.json              # imports: "#database/*" self-map + "#common/*" → @kit/common/*
+├── database/                     # @meow/database — scripts: db:generate / db:migrate / db:studio
+│   ├── package.json              # imports: "#database/*" self-map + "#common/*" → @meow/common/*
 │   ├── drizzle.config.ts
 │   ├── tsconfig.json
 │   ├── migrations/
@@ -184,13 +184,13 @@ The elegant property: `#common/validation/user.ts` means the same thing from any
 │       ├── schema/{auth.ts,app.ts,index.ts}
 │       ├── client.ts             # createDb(env)
 │       └── index.ts
-├── server-api/                   # @kit/server-api
-│   ├── package.json              # imports: "#common/*", "#database/*" → @kit/…
+├── server-api/                   # @meow/server-api
+│   ├── package.json              # imports: "#common/*", "#database/*" → @meow/…
 │   ├── vite.config.ts            # @hono/vite-dev-server, port 3000; ~ string alias → ./src
 │   ├── tsconfig.json
 │   └── src/{index.ts,app.ts,auth.ts,env.ts,route/}
-└── web-app/                      # @kit/web-app
-    ├── package.json              # imports: "#common/*" → @kit/common/*
+└── web-app/                      # @meow/web-app
+    ├── package.json              # imports: "#common/*" → @meow/common/*
     ├── vite.config.ts            # react-oxc, @tailwindcss/vite, tanstack router; ~ and @ string aliases; proxy /api→:3000
     ├── components.json           # shadcn aliases: components:"@", ui:"@/ui", utils:"~/lib/utils"
     ├── tsconfig.json
@@ -208,7 +208,7 @@ The elegant property: `#common/validation/user.ts` means the same thing from any
 
 ## Next steps (scaffold order)
 
-1. `git init`; root `package.json`, `pnpm-workspace.yaml`, `tsconfig.base.json`, `.gitignore`, root `vite.config.ts`; `vp install`. As each package is added below: libraries get a `#<name>/*` self-map, apps get `~` (tsconfig paths + vite alias) plus `#` maps for the siblings they import. Smoke-test the `#common/* → @kit/common/* → ./src/*` chain under rolldown-vite as soon as `common` exists.
+1. `git init`; root `package.json`, `pnpm-workspace.yaml`, `tsconfig.base.json`, `.gitignore`, root `vite.config.ts`; `vp install`. As each package is added below: libraries get a `#<name>/*` self-map, apps get `~` (tsconfig paths + vite alias) plus `#` maps for the siblings they import. Smoke-test the `#common/* → @meow/common/* → ./src/*` chain under rolldown-vite as soon as `common` exists.
 2. `common/` — package.json with wildcard exports, tsconfig, empty `lib`/`constant`/`validation` folders with a seed file each.
 3. `database/` — pick DB engine (see shortlist), drizzle config, `createDb`, empty `app.ts` schema.
 4. `server-api/` — Hono app + `@hono/vite-dev-server`, Valibot `env.ts`, better-auth config, then generate `schema/auth.ts` and run first `db:generate`/`db:migrate`.
@@ -223,7 +223,7 @@ Executed on branch `scaffold`. Corrections and deltas discovered against this do
 1. **Bun, not pnpm** (user preference): workspaces declared in root `package.json` (`"workspaces": [...]` — no `pnpm-workspace.yaml`), `bun.lock` committed. Vite+ detects Bun via the lockfile and `vp install` maps to Bun's install flags. No `packageManager` pin — evergreen policy.
 2. **App vite configs import from `'vite-plus'`, not `'vite'`** — vite-plus bundles its own vite (no `vite` package is installed at root), and it re-exports `defineConfig`/`loadEnv`. Importing `'vite'` fails module resolution.
 3. **`vp run -r --parallel dev` requires a `"dev": "vp dev"` script in each app's package.json** — confirmed working with that in place (the doc's "verify flag interplay" note was warranted).
-4. **The `#common/* → @kit/common/* → ./src/*` double-wildcard chain works** under rolldown-vite (Vitest gate test in `database/src/client.test.ts`) and under the better-auth CLI's loader.
+4. **The `#common/* → @meow/common/* → ./src/*` double-wildcard chain works** under rolldown-vite (Vitest gate test in `database/src/client.test.ts`) and under the better-auth CLI's loader.
 5. **better-auth CLI bootstrap**: the `auth.ts → db.ts → env.ts` chain uses _relative_ imports (not `~`) so the CLI can load it outside Vite; `createDb` is a pure lazy factory, so generation needs `.env` populated but no live DB.
 6. **shadcn CLI v4** (2026): Base UI is selected via `style: "base-vega"` in `components.json` (base-\*/radix-\* style matrix; there is no separate init-time registry pick). Non-interactive path used: hand-written `components.json` → `yes | bunx shadcn init --base base --preset vega -f` (injects theme into `global.css`) → `bunx shadcn add button`. Singular `component/` folder and `@`/`~` aliases worked with zero stray-path fixes.
 7. **Type-aware checking** (`lint.options.typeAware + typeCheck`) needs `vitest` as a devDep in packages with tests (`^4.1.9`, tracking vp's bundled major — bun's isolated layout doesn't hoist vite-plus's internals) and `types: ["node"]` wherever `process.env` is read.
