@@ -1,0 +1,61 @@
+# Self-hosted Infisical for local development.
+#
+# Base this on Infisical's official self-host compose — the exact image tag and
+# env-var names drift between versions, so verify against the current docs:
+#   https://infisical.com/docs/self-hosting/deployment-options/docker-compose
+#   https://infisical.com/docs/self-hosting/configuration/envars
+#
+# Bring up:  bun run infisical:up   →  http://localhost:8080
+# On first visit, create the admin account, then the `meow-platform` and
+# `meow-server-api` projects (see readme.md → bootstrap).
+#
+# Note: this runs Infisical's OWN Postgres + Redis, entirely separate from the
+# app's database in ../../database/docker-compose.yaml.
+
+services:
+  backend:
+    image: infisical/infisical:v0.162.3 # pinned; NOT `latest-postgres` (that tag is frozen at 2025-08 and lacks the /api/v4 routes the current CLI uses)
+    container_name: infisical-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    env_file: .env # ENCRYPTION_KEY, AUTH_SECRET, SITE_URL reach the container from here
+    environment:
+      # Composed from the discrete values in .env so each credential has one source.
+      DB_CONNECTION_URI: postgres://${INFISICAL_DB_USER:-infisical}:${INFISICAL_DB_PASSWORD:-infisical}@db:5432/${INFISICAL_DB_NAME:-infisical}
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/api/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  db:
+    image: postgres:16-alpine
+    container_name: infisical-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${INFISICAL_DB_USER:-infisical}
+      POSTGRES_PASSWORD: ${INFISICAL_DB_PASSWORD:-infisical}
+      POSTGRES_DB: ${INFISICAL_DB_NAME:-infisical}
+    volumes:
+      - infisical-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${INFISICAL_DB_USER:-infisical}"]
+      interval: 5s
+
+  redis:
+    image: redis:7-alpine
+    container_name: infisical-redis
+    restart: unless-stopped
+    volumes:
+      - infisical-redis:/data
+
+volumes:
+  infisical-db:
+  infisical-redis:

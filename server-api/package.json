@@ -7,18 +7,18 @@
     "#database/*": "@meow/database/*"
   },
   "scripts": {
-    "dev": "vp dev"
+    "dev": "bun --watch src/index.ts",
+    "secret:pull": "bunx infisical export --template=.env.template > .env"
   },
   "dependencies": {
     "@hono/valibot-validator": "^0.6.1",
     "@meow/common": "workspace:*",
     "@meow/database": "workspace:*",
     "better-auth": "^1.6.23",
-    "hono": "^4.12.27",
+    "hono": "^4.12.30",
     "valibot": "^1.4.2"
   },
   "devDependencies": {
-    "@hono/vite-dev-server": "^0.26.0",
     "@types/bun": "^1.3.14"
   }
 }

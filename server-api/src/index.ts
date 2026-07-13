@@ -1,9 +1,11 @@
-import { Hono } from "hono"
-
 import { GET, POST } from "@meow/common/constant/http.ts"
-import { auth } from "~/auth.ts"
-import factory from "~/factory.ts"
-import { hello } from "~/route/hello.ts"
+import { check } from "@meow/common/lib/console.ts"
+import { auth } from "~/auth"
+import factory from "~/factory"
+import { hello } from "~/route/hello"
+
+// —————————————————————————————————————————————————————————————————————————————
+// Hono Root
 
 const app = factory.createApp()
   .get("/api/health", (c) => c.json({ ok: true }))
@@ -22,5 +24,8 @@ export type App = typeof app
 // Serve
 
 const server = Bun.serve({
+  port: 3000,
   fetch: app.fetch,
 })
+
+console.log(`${check} server-api → http://localhost:${server.port}`)

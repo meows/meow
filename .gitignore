@@ -3,7 +3,12 @@ dist/
 .env
 .env.*
 !.env.example
+!.env.template
+!.env.tpl
 *.local
 .DS_Store
+
+# *.infisical.json are COMMITTED on purpose (project ids + default env only, no secrets).
+# Exported .env files and infra/infisical/.env stay ignored by the .env/.env.* rules above.
 
 bun.lock

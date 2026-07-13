@@ -10,5 +10,5 @@ export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
   database: drizzleAdapter(psql.db, { provider: "pg", schema }),
   emailAndPassword: { enabled: true },
-  trustedOrigins: ["https://meow.localhost", "https://meow.local"],
+  trustedOrigins: ["https://meow.localhost:8443"],
 })

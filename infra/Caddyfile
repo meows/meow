@@ -1,38 +1,39 @@
 # ----------------------------------------------------------------------------------------
 # Caddy configuration for local development
 #
-# Fronts the SPA (web-app, Vite :5173) and the API (server-api, Hono :3000)
-# behind a single HTTPS origin so better-auth sees one consistent origin in
-# dev — both from the host machine and from other devices on the LAN.
+# Fronts the SPA (web-app, Vite :5173) and the API (server-api, Hono :3000) behind one
+# HTTPS origin with a clean hostname: https://meow.localhost:8443
 #
-# This is optional: `bun run dev` already gives same-origin routing over plain
-# HTTP via Vite's own `/api` proxy. Reach for Caddy when you want real HTTPS
-# locally or a stable hostname for testing on another device.
+# Rootless: Caddy listens on a high port (:8443), so no sudo to start it — macOS reserves
+# ports below 1024 (like :443) for root. `*.localhost` resolves to loopback automatically,
+# so there's no /etc/hosts entry to add. Route more services by copying the site block
+# with a new `*.localhost` name (see the commented example at the bottom).
 #
-# Requires a one-time setup to trust the local Caddy instance as a certificate
-# authority. While Caddy is running, run this command:
+# One-time: trust Caddy's local CA so the browser accepts the cert (admin action):
 # ┌───────────────┐
-# │ > caddy trust │
+# │ > caddy trust │   (macOS: sudo caddy trust)
 # └───────────────┘
 # ----------------------------------------------------------------------------------------
 # ■ Tools
 # - Official VSC extension for Caddy: https://github.com/caddyserver/vscode-caddyfile
 # ----------------------------------------------------------------------------------------
 {
-	default_bind 0.0.0.0
+	# Don't stand up the HTTP→HTTPS redirect vhost on the privileged :80 — keeps
+	# the whole gateway rootless.
+	auto_https disable_redirects
 }
 
-# Hostnames are suggestions — `.localhost` resolves to loopback automatically;
-# `.local` (mDNS) lets other devices on the LAN reach this machine.
-meow.local, meow.localhost {
+meow.localhost:8443 {
 	# API and auth go straight to the Hono server, bypassing Vite's proxy.
 	@api path /api /api/*
-	reverse_proxy @api localhost:3000 {
-		header_up Host {host}
-	}
+	reverse_proxy @api localhost:3000
 
-	# Everything else is the SPA. Vite's HMR runs over WebSocket; Caddy's
-	# reverse_proxy upgrades it automatically when no matcher overrides the
-	# headers.
+	# Everything else is the SPA. Caddy preserves the Host header and upgrades
+	# Vite's HMR WebSocket automatically.
 	reverse_proxy localhost:5173
 }
+
+# Add more services by name — each gets free `*.localhost` loopback resolution:
+# service.localhost:8443 {
+# 	reverse_proxy localhost:4000
+# }
