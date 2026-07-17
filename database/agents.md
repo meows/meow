@@ -28,5 +28,5 @@
 
 # Links
 
-- https://better-auth.com/llms.txt
-- https://orm.drizzle.team/llms.txt
+- [Better Auth documentation](https://better-auth.com/llms.txt)
+- [Drizzle ORM documentation](https://orm.drizzle.team/llms.txt)

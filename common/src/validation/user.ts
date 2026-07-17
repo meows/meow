@@ -1,15 +1,24 @@
-import * as v from "valibot"
+import { email, maxLength, minLength, object, pipe, string, trim, type InferOutput } from "valibot"
+
+// ———————————————————————————————————————————————————————————————————————————————————————
+// Environment
 
 import { EMAIL_MAX, NAME_MAX, PASSWORD_MIN } from "#common/constant/limits.ts"
 
-export const EmailSchema = v.pipe(v.string(), v.trim(), v.email(), v.maxLength(EMAIL_MAX))
+// ———————————————————————————————————————————————————————————————————————————————————————
+// Schema
 
-export const PasswordSchema = v.pipe(v.string(), v.minLength(PASSWORD_MIN))
+export const schema_email = pipe(string(), trim(), email(), maxLength(EMAIL_MAX))
 
-export const SignUpSchema = v.object({
-  email: EmailSchema,
-  password: PasswordSchema,
-  name: v.pipe(v.string(), v.trim(), v.minLength(1), v.maxLength(NAME_MAX)),
+export const schema_password = pipe(string(), minLength(PASSWORD_MIN))
+
+export const schema_sign_up = object({
+  email: schema_email,
+  password: schema_password,
+  name: pipe(string(), trim(), minLength(1), maxLength(NAME_MAX)),
 })
 
-export type SignUp = v.InferOutput<typeof SignUpSchema>
+// ---------------------------------------------------------------------------------------
+// Type
+
+export type SignUp = InferOutput<typeof schema_sign_up>

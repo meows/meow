@@ -7,7 +7,7 @@ import { createFactory } from "hono/factory"
 
 import type { DB } from "@meow/database/client.ts"
 
-import type { auth } from "./auth.ts"
+import type { Session } from "./middleware/getSession.ts"
 import { psql } from "./context/database.ts"
 
 // ———————————————————————————————————————————————————————————————————————————————————————
@@ -17,11 +17,7 @@ import { psql } from "./context/database.ts"
  * The context type for the base hono instance.
  */
 export type Env = {
-  Variables: {
-    db: DB
-    user: typeof auth.$Infer.Session.user | null
-    session: typeof auth.$Infer.Session.session | null
-  }
+  Variables: { db: DB } & Session["Variables"]
 }
 
 // ———————————————————————————————————————————————————————————————————————————————————————
@@ -40,7 +36,7 @@ const factory = createFactory<Env>({
       c.set("db", psql.db)
       await next()
     })
-  }
+  },
 })
 
 export default factory
