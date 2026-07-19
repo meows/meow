@@ -30,10 +30,14 @@
     "secret:pull:gateway": "cd infra && bunx infisical export --template=.env.template > .env"
   },
   "devDependencies": {
-    "@infisical/cli": "^0.43.104",
-    "@types/node": "^24.13.3",
-    "typescript": "^5.9.3",
-    "vite-plus": "^0.2.4"
+    "@infisical/cli": "^0.43.110",
+    "@types/node": "^26.1.1",
+    "typescript": "^7.0.2",
+    "vite-plus": "^0.2.5"
+  },
+  "overrides": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@^0.2.4",
+    "vitest": "4.1.10"
   },
   "trustedDependencies": [
     "@infisical/cli"

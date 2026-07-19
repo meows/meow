@@ -1,10 +1,10 @@
 /* ---------------------------------------------------------------------------------------
- * Environment for this package's own executables (scripts, drizzle-kit) — the
- * `Database` client itself takes its connection explicitly and never reads env.
+ * Database environment variables
+ * - So far the only purpose is for tooling config and database management.
  * ------------------------------------------------------------------------------------ */
 
 import { object, parse } from "valibot"
-import { notEmpty, port } from "#common/validation/environment.ts"
+import { notEmpty, port } from "#common/validate/env-parsing.ts"
 
 // ———————————————————————————————————————————————————————————————————————————————————————
 // Environment

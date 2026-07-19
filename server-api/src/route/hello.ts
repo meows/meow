@@ -1,7 +1,7 @@
 import { describeRoute, resolver, validator as input } from "hono-openapi"
 import { object } from "valibot"
 
-import { schema_email } from "#common/validation/user.ts"
+import { schema_email } from "#common/validate/user-input.ts"
 import factory from "~/factory.ts"
 
 // ———————————————————————————————————————————————————————————————————————————————————————

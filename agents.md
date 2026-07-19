@@ -3,9 +3,10 @@
   - 📁 `src`
     - 📁 `constant`
     - 📁 `lib`
-    - 📁 `validation`
+    - 📁 `validate` valibot utilities
 - 📁 `database`
 - 📁 `docs`
+- 📁 `infra`
 - 📁 `server-api`
 - 📁 `web-app`
 

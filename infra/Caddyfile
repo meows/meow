@@ -1,22 +1,22 @@
 # ----------------------------------------------------------------------------------------
 # Caddy configuration for local development
 #
-# Fronts the SPA (web-app, Vite :4444) and the API (server-api, Hono :3000) behind one
-# HTTPS origin with a clean hostname: https://meow.localhost:4443
-#
-# Rootless: Caddy listens on a high port (:4443), so no sudo to start it — macOS reserves
-# ports below 1024 (like :443) for root. `*.localhost` resolves to loopback automatically,
-# so there's no /etc/hosts entry to add. Route more services by copying the site block
-# with a new `*.localhost` name (see the commented example at the bottom).
-#
-# One-time: trust Caddy's local CA so the browser accepts the cert (admin action):
+# Requires a one-time setup to trust the local Caddy instance as a certificate
+# authority. While Caddy is running, run this command:
 # ┌───────────────┐
-# │ > caddy trust │   (macOS: sudo caddy trust)
+# │ > caddy trust │
 # └───────────────┘
+# ----------------------------------------------------------------------------------------
+# ■ Notes
+# - Rootless. MacOS reserves ports below `1024` (like `443`) so we choose `4443`. 
+# - `*.localhost` resolves to loopback automatically thus no /etc/hosts entry to add.
+# - Fronts the SPA (`web-app`, Vite :4444) and the API server (`server-api`, Hono :3000)
+#   behind one HTTPS origin with a nice name: https://meow.localhost:4443.
 # ----------------------------------------------------------------------------------------
 # ■ Tools
 # - Official VSC extension for Caddy: https://github.com/caddyserver/vscode-caddyfile
 # ----------------------------------------------------------------------------------------
+
 {
 	# Don't stand up the HTTP→HTTPS redirect vhost on the privileged :80 — keeps
 	# the whole gateway rootless.

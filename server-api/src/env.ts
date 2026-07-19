@@ -3,7 +3,7 @@
  * ------------------------------------------------------------------------------------ */
 
 import { minLength, object, parse, pipe, string } from "valibot"
-import { notEmpty, port, url } from "#common/validation/environment.ts"
+import { notEmpty, port, url } from "#common/validate/env-parsing.ts"
 
 // ———————————————————————————————————————————————————————————————————————————————————————
 // Validation

@@ -1,10 +1,10 @@
-import * as v from "valibot"
+import { boolean, object, parse, string } from "valibot"
 
 // Client env — extend with VITE_-prefixed vars as they appear.
-const EnvSchema = v.object({
-  MODE: v.string(),
-  DEV: v.boolean(),
-  PROD: v.boolean(),
+const EnvSchema = object({
+  MODE: string(),
+  DEV: boolean(),
+  PROD: boolean(),
 })
 
-export const env = v.parse(EnvSchema, import.meta.env)
+export const env = parse(EnvSchema, import.meta.env)

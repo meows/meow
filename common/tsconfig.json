@@ -1,4 +1,20 @@
+/* ---------------------------------------------------------------------------------------
+ * ■ TypeScript configuration for the `common` package.
+ *
+ * This package is UNIVERSAL — imported by both web-app (browser) and
+ * server-api/database (server). It targets the WinterTC "Minimum Common
+ * Web API": the lib is pure ECMAScript, and the only web global the code
+ * uses (crypto.getRandomValues) is declared in src/globals.d.ts. Nothing
+ * else is in scope, so browser-only (window/document), worker-only (self/
+ * importScripts/caches) and Node-only (Buffer/process) symbols are all
+ * compile errors. "types": [] keeps ambient @types out.
+ * ------------------------------------------------------------------------------------ */
+
 {
   "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["esnext"],
+    "types": []
+  },
   "include": ["src"]
 }

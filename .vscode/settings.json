@@ -1,1 +1,14 @@
-{}
+{
+  // Oxc extension (oxfmt) formats JS/TS. It reads the `fmt` block from
+  // vite.config.ts (via node_modules/.bin/oxfmt), so editor formatting is
+  // identical to `vp fmt`. Scoped to JS/TS only — deliberately NOT JSON,
+  // so formatting package.json won't trigger oxfmt's sortPackageJson.
+  "[javascript]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[javascriptreact]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[typescript]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "[typescriptreact]": { "editor.defaultFormatter": "oxc.oxc-vscode" },
+  "oxc.fmt.configPath": "./vite.config.ts",
+
+  // Manual/selective only: format on demand (⇧⌥F / ⌘K ⌘F), never on save.
+  "editor.formatOnSave": false
+}
