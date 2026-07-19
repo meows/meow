@@ -1,18 +1,20 @@
+/* ---------------------------------------------------------------------------------------
+ * ■ Links
+ * - https://hono.dev/docs/guides/middleware
+ * - https://better-auth.com/docs/integrations/hono
+ * ------------------------------------------------------------------------------------ */
+
 import { createMiddleware } from "hono/factory"
+import { auth } from "~/auth"
 
-import type { Session } from "./getSession.ts"
-
-export type EnforcedSession = {
+export type Session = {
   Variables: {
-    [K in keyof Session["Variables"]]: NonNullable<Session["Variables"][K]>
+    user: typeof auth.$Infer.Session.user
+    session: typeof auth.$Infer.Session.session
   }
 }
 
-/**
- * Rejects unauthenticated requests. Routes behind it see non-null `user` / `session`.
- * Requires `getSession` to have run earlier in the chain.
- */
-export const enforceSession = createMiddleware<EnforcedSession>(async (c, next) => {
+export const enforceSession = createMiddleware<Session>(async (c, next) => {
   if (!c.get("user") || !c.get("session")) return c.body(null, 401)
   await next()
 })

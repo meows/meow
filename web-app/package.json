@@ -6,7 +6,8 @@
     "#common/*": "@meow/common/*"
   },
   "scripts": {
-    "dev": "vp dev"
+    "dev": "vp dev",
+    "secret:pull": "bunx infisical export --template=.env.template > .env"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

@@ -5,10 +5,9 @@
 
 import { createFactory } from "hono/factory"
 
-import type { DB } from "@meow/database/client.ts"
-
-import type { Session } from "./middleware/getSession.ts"
-import { psql } from "./context/database.ts"
+import type { DB } from "#database/client.ts"
+import { psql } from "~/context/database.ts"
+import type { Session } from "~/middleware/getSession.ts"
 
 // ———————————————————————————————————————————————————————————————————————————————————————
 // Environment

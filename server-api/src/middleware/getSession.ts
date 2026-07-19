@@ -1,5 +1,11 @@
+/* ---------------------------------------------------------------------------------------
+ * ■ Links
+ * - https://hono.dev/docs/guides/middleware
+ * - https://better-auth.com/docs/integrations/hono
+ * ------------------------------------------------------------------------------------ */
+
+import { createMiddleware } from "hono/factory"
 import { auth } from "~/auth"
-import factory from "~/factory"
 
 export type Session = {
   Variables: {
@@ -8,10 +14,7 @@ export type Session = {
   }
 }
 
-/**
- * https://better-auth.com/docs/integrations/hono
- */
-export const getSession = factory.createMiddleware(async (c, next) => {
+export const getSession = createMiddleware<Session>(async (c, next) => {
   const session = await auth.api.getSession({ headers: c.req.raw.headers })
   c.set("user", session?.user ?? null)
   c.set("session", session?.session ?? null)

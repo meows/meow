@@ -6,9 +6,8 @@
 import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js"
 import postgres from "postgres"
 
-import { relations } from "#database/schema/relations.ts"
-import { generate as randomUUIDv7 } from "@meow/common/lib/uuid7.ts"
-import { env } from "#database/env.ts"
+import { generate as randomUUIDv7 } from "#common/lib/uuid7.ts"
+import { relations } from "./schema/relations.ts"
 
 // ———————————————————————————————————————————————————————————————————————————————————————
 // Database Client
@@ -16,29 +15,35 @@ import { env } from "#database/env.ts"
 /** Type for Drizzle client used by `Database`. */
 export type DB = PostgresJsDatabase<typeof relations>
 
-/** Abstraction over Drizzle client. */
+/**
+ * Abstraction over Drizzle client for PostgreSQL.
+ */
 export class Database {
   /** Database driver for PSQL. @see https://github.com/porsager/postgres */
   driver: ReturnType<typeof postgres>
   /** The Drizzle client. */
   db: DB
-  /** Unique per-client id, used to tag the connection's `application_name`. */
+  /** Unique client id. */
   uuid = randomUUIDv7()
 
   /**
-   * Create a new database client.
+   * Create a new PostgreSQL database client. 
+   * - Constructing is lazy. No connection is opened until the first query.
+   *
    * @param name - The name of the connection.
+   * @param url - PostgreSQL connection string.
    * @param options - Options for the `postgres` driver.
    */
-  constructor(name: string, options?: postgres.Options<{}>) {
-    this.driver = postgres({
-      host: env.PSQL_HOSTNAME,
-      port: env.PSQL_PORT,
-      password: env.PSQL_PASSWORD,
+  constructor(name: string, url: string, options?: postgres.Options<{}>)
+  constructor(name: string, options: postgres.Options<{}>)
+  constructor(name: string, url?: string | postgres.Options<{}>, options?: postgres.Options<{}>) {
+    if (typeof url !== "string") [url, options] = [undefined, url]
+    const config: postgres.Options<{}> = {
       idle_timeout: 0,
       connection: { application_name: `${name}-${this.uuid}` },
       ...options,
-    })
+    }
+    this.driver = url ? postgres(url, config) : postgres(config)
     this.db = drizzle({ client: this.driver, relations })
   }
 

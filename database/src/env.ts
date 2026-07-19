@@ -1,16 +1,24 @@
-import { integer, minValue, nonEmpty, object, parse, pipe, string, toNumber } from "valibot"
+/* ---------------------------------------------------------------------------------------
+ * Environment for this package's own executables (scripts, drizzle-kit) — the
+ * `Database` client itself takes its connection explicitly and never reads env.
+ * ------------------------------------------------------------------------------------ */
+
+import { object, parse } from "valibot"
+import { notEmpty, port } from "#common/validation/environment.ts"
 
 // ———————————————————————————————————————————————————————————————————————————————————————
 // Environment
 
 const schema_env = object({
-  PSQL_USER:     pipe(string(), nonEmpty()), // postgres
-  PSQL_PASSWORD: pipe(string(), nonEmpty()), // postgres
-  PSQL_DB:       pipe(string(), nonEmpty()), // postgres
-  PSQL_SCHEMA:   pipe(string(), nonEmpty()), // meow
+  /** Full PostgreSQL connection string. */
+  DATABASE_URL: notEmpty(),
 
-  PSQL_HOSTNAME: pipe(string(), nonEmpty()), // localhost
-  PSQL_PORT:     pipe(string(), toNumber(), integer(), minValue(1)), // 5432
+  PSQL_HOSTNAME: notEmpty(),
+  PSQL_PORT:     port(),
+  PSQL_USER:     notEmpty(),
+  PSQL_PASSWORD: notEmpty(),
+  PSQL_DB:       notEmpty(),
+  PSQL_SCHEMA:   notEmpty(),
 })
 
 // ---------------------------------------------------------------------------------------

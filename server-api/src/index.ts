@@ -3,6 +3,7 @@ import { openAPIRouteHandler } from "hono-openapi"
 
 import { GET, POST } from "#common/constant/http.ts"
 import { auth } from "~/auth"
+import { env } from "~/env"
 import factory from "~/factory"
 import { getSession } from "~/middleware/getSession"
 import { hello } from "~/route/hello"
@@ -22,8 +23,8 @@ const app = factory.createApp()
 app
   .get("/openapi", openAPIRouteHandler(app, {
     documentation: {
-      info: { title: "meow API", version: "1.0.0" },
-      servers: [{ url: "http://localhost:3000", description: "Local" }],
+      info: { title: "Server API", version: "1.0.0" },
+      servers: [{ url: env.SERVER_API_URL, description: "Local" }],
     },
   }))
   .get("/docs", Scalar({ url: "/api/openapi" }))
@@ -32,4 +33,8 @@ app
 // Export
 
 export type App = typeof app
-export default app
+
+export default { 
+  port: env.SERVER_API_PORT, 
+  fetch: app.fetch 
+}

@@ -1,9 +1,35 @@
-import { minLength, object, parse, pipe, string, url } from "valibot"
+/* ---------------------------------------------------------------------------------------
+ * Validation for environment variables
+ * ------------------------------------------------------------------------------------ */
 
-const schema_env = object({
-  DATABASE_URL: pipe(string(), url()),
+import { minLength, object, parse, pipe, string } from "valibot"
+import { notEmpty, port, url } from "#common/validation/environment.ts"
+
+// ———————————————————————————————————————————————————————————————————————————————————————
+// Validation
+
+const schema = object({
+  /** https://better-auth.com/docs/reference/options#secret */
   BETTER_AUTH_SECRET: pipe(string(), minLength(16)),
-  BETTER_AUTH_URL: pipe(string(), url()),
+
+  /** Connection string for the primary app database. */
+  DATABASE_URL: url(),
+
+  /** Caddy alias for host. */
+  GATEWAY_HOST: notEmpty(),
+
+  /** Port for the gateway service. */
+  GATEWAY_PORT: port(),
+
+  /** Port this Hono API binds to. */
+  SERVER_API_PORT: port(),
+
+  /** Externally visible URL. */
+  SERVER_API_URL: url(),
 })
 
-export const env = parse(schema_env, process.env)
+// ---------------------------------------------------------------------------------------
+// Export
+
+export const env = parse(schema, process.env)
+export default env

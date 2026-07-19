@@ -18,14 +18,16 @@
     "db:reset": "vp run --filter @meow/database db:reset",
     "db:seed": "vp run --filter @meow/database db:seed",
     "db:studio": "vp run --filter @meow/database db:studio",
-    "gateway:up": "caddy start --config infra/Caddyfile",
+    "gateway:up": "set -a; [ -f infra/.env ] && . ./infra/.env; set +a; caddy start --config infra/Caddyfile",
     "gateway:down": "caddy stop",
-    "gateway:reload": "caddy reload --config infra/Caddyfile",
+    "gateway:reload": "set -a; [ -f infra/.env ] && . ./infra/.env; set +a; caddy reload --config infra/Caddyfile",
     "infisical:up": "docker compose -f infra/infisical/docker-compose.yaml up -d --wait",
     "infisical:down": "docker compose -f infra/infisical/docker-compose.yaml down",
-    "secret:pull": "bun run secret:pull:db && bun run secret:pull:api",
+    "secret:pull": "bun run secret:pull:db && bun run secret:pull:api && bun run secret:pull:web && bun run secret:pull:gateway",
     "secret:pull:db": "vp run --filter @meow/database secret:pull",
-    "secret:pull:api": "vp run --filter @meow/server-api secret:pull"
+    "secret:pull:api": "vp run --filter @meow/server-api secret:pull",
+    "secret:pull:web": "vp run --filter @meow/web-app secret:pull",
+    "secret:pull:gateway": "cd infra && bunx infisical export --template=.env.template > .env"
   },
   "devDependencies": {
     "@infisical/cli": "^0.43.104",
