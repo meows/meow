@@ -24,17 +24,18 @@
 }
 
 # Host + ports come from the Infisical /network folder, rendered to infra/.env and sourced
-# by `bun run gateway:up` / `gateway:reload` before Caddy adapts this file. The {$VAR:default}
-# form is Caddy's adapt-time env substitution; the defaults match the committed dev values so
-# `gateway:up` works on a fresh checkout before `secret:pull`.
-{$GATEWAY_HOST:meow.localhost}:{$GATEWAY_PORT:4443} {
+# by `bun run gateway:up` / `gateway:reload` before Caddy adapts this file. {$VAR} is Caddy's
+# adapt-time env substitution, with no defaults — a missing value is a mistake we want to catch.
+# Caddy alone won't: an unset var silently collapses to :443 / localhost:80, so gateway:up and
+# gateway:reload guard the required vars and abort with the offending name before Caddy runs.
+{$GATEWAY_HOST}:{$GATEWAY_PORT} {
 	# API and auth go straight to the Hono server, bypassing Vite's proxy.
 	@api path /api /api/*
-	reverse_proxy @api localhost:{$SERVER_API_PORT:3000}
+	reverse_proxy @api localhost:{$SERVER_API_PORT}
 
 	# Everything else is the SPA. Caddy preserves the Host header and upgrades
 	# Vite's HMR WebSocket automatically.
-	reverse_proxy localhost:{$WEB_APP_PORT:4444}
+	reverse_proxy localhost:{$WEB_APP_PORT}
 }
 
 # Add more services by name — each gets free `*.localhost` loopback resolution:

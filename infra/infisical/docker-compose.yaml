@@ -6,15 +6,10 @@
 #   https://infisical.com/docs/self-hosting/configuration/envars
 #
 # Bring up:  bun run infisical:up   →  http://localhost:8080
-# On first visit, create the admin account, then the `meow-platform` and
-# `meow-server-api` projects (see readme.md → bootstrap).
-#
-# Note: this runs Infisical's OWN Postgres + Redis, entirely separate from the
-# app's database in ../../database/docker-compose.yaml.
 
 services:
   backend:
-    image: infisical/infisical:v0.162.3 # pinned; NOT `latest-postgres` (that tag is frozen at 2025-08 and lacks the /api/v4 routes the current CLI uses)
+    image: infisical/infisical:v0.162.3
     container_name: infisical-backend
     restart: unless-stopped
     depends_on:
@@ -22,10 +17,9 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-    env_file: .env # ENCRYPTION_KEY, AUTH_SECRET, SITE_URL reach the container from here
+    env_file: .env
     environment:
-      # Composed from the discrete values in .env so each credential has one source.
-      DB_CONNECTION_URI: postgres://${INFISICAL_DB_USER:-infisical}:${INFISICAL_DB_PASSWORD:-infisical}@db:5432/${INFISICAL_DB_NAME:-infisical}
+      DB_CONNECTION_URI: "postgres://${INFISICAL_DB_USER:?}:${INFISICAL_DB_PASSWORD:?}@db:5432/${INFISICAL_DB_NAME:?}"
       REDIS_URL: redis://redis:6379
     ports:
       - "8080:8080"
@@ -40,13 +34,13 @@ services:
     container_name: infisical-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${INFISICAL_DB_USER:-infisical}
-      POSTGRES_PASSWORD: ${INFISICAL_DB_PASSWORD:-infisical}
-      POSTGRES_DB: ${INFISICAL_DB_NAME:-infisical}
+      POSTGRES_USER: ${INFISICAL_DB_USER:?}
+      POSTGRES_PASSWORD: ${INFISICAL_DB_PASSWORD:?}
+      POSTGRES_DB: ${INFISICAL_DB_NAME:?}
     volumes:
       - infisical-db:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${INFISICAL_DB_USER:-infisical}"]
+      test: ["CMD-SHELL", "pg_isready -U ${INFISICAL_DB_USER:?}"]
       interval: 5s
 
   redis:
