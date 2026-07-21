@@ -16,7 +16,7 @@
   respective `agents.md`, which should be respected when engaging with subprojects.
 
 # Constraint
-- Don't do agent attribution when doing Git commits.
+- Don't do agent attribution when doing git or github operations.
 
 # Links
 - [Vite+ documentation](https://viteplus.dev/llms.txt)
