@@ -11,8 +11,8 @@ import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
 
 import * as schema from "#database/schema/index.ts"
-import { psql } from "~/context/database.ts"
-import { env } from "~/env.ts"
+import { psql } from "~/context/database"
+import { env } from "~/env"
 
 // —————————————————————————————————————————————————————————————————————————————
 // BetterAuth

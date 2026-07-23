@@ -1,3 +1,7 @@
+/* ---------------------------------------------------------------------------------------
+ * This is the Hono server entry point.
+ * ------------------------------------------------------------------------------------ */
+
 import { Scalar } from "@scalar/hono-api-reference"
 import { openAPIRouteHandler } from "hono-openapi"
 
